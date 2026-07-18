@@ -1,0 +1,1851 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Anarchytrap — Креативный разработчик & Дизайнер</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    /* Premium Fonts */
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Inter:wght@300;400;600;700&display=swap');
+
+    :root {
+      --bg-base: #0a0a0a;
+      --gold-base: #a78b71;
+      --gold-light: #c9b8a0;
+      --gold-hover: #e8d5b7;
+      
+      --card-bg: rgba(255, 255, 255, 0.03);
+      --card-border: rgba(255, 255, 255, 0.1);
+      
+      --font-serif: 'Playfair Display', serif;
+      --font-sans: 'Inter', sans-serif;
+      --transition-smooth: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+      --transition-reveal: all 0.9s cubic-bezier(0.16, 1, 0.3, 1); /* Emulating power4.out */
+      
+      --lens-radius: 160px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-base);
+      color: #ffffff;
+      font-family: var(--font-sans);
+      min-height: 100vh;
+      overflow-x: hidden;
+      line-height: 1.6;
+    }
+
+    /* Fixed Background System */
+    .bg-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: -3;
+      pointer-events: none;
+    }
+
+    .bg-layer {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+    }
+
+    .bg-bw {
+      filter: grayscale(100%) brightness(0.22);
+    }
+
+    #bgCanvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Radial Dot Grid Overlay (32px spacing, white at 8% opacity) */
+    .dot-grid {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: -2;
+      background-image: radial-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px);
+      background-size: 32px 32px;
+      pointer-events: none;
+    }
+
+    /* Vignette and Central Glow Effect */
+    .bg-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: radial-gradient(circle at center, transparent 20%, rgba(10, 10, 10, 0.85) 100%);
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    .central-glow {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 600px;
+      height: 600px;
+      border-radius: 50%;
+      box-shadow: 0 0 120px rgba(167, 139, 113, 0.12);
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    /* Navigation */
+    .navbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      background: rgba(10, 10, 10, 0.75);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      z-index: 1000;
+      padding: 1.5rem 3rem;
+    }
+
+    .nav-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      font-family: var(--font-serif);
+      font-size: 1.8rem;
+      font-style: italic;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-decoration: none;
+      color: #ffffff;
+      transition: var(--transition-smooth);
+      white-space: nowrap;
+    }
+
+    .logo span {
+      color: var(--gold-base);
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 3rem;
+      list-style: none;
+      align-items: center;
+    }
+
+    .nav-links a {
+      font-family: var(--font-sans);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      text-decoration: none;
+      color: rgba(255, 255, 255, 0.6);
+      font-weight: 600;
+      transition: var(--transition-smooth);
+    }
+
+    .nav-links a:hover {
+      color: var(--gold-hover);
+    }
+
+    .btn-trial {
+      background: #ffffff;
+      color: #0a0a0a;
+      border: none;
+      padding: 0.65rem 1.5rem;
+      border-radius: 50px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      cursor: pointer;
+      transition: var(--transition-smooth);
+    }
+
+    .btn-trial:hover {
+      background: var(--gold-hover);
+      transform: translateY(-1px);
+    }
+
+    /* Main Container */
+    .content-wrapper {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 8rem 3rem 4rem 3rem;
+      display: flex;
+      flex-direction: column;
+      gap: 8rem;
+    }
+
+    /* Hero Section */
+    .hero-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      position: relative;
+      padding: 4rem 0 6rem 0;
+      min-height: 85vh;
+      justify-content: center;
+    }
+
+    .live-pill {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 50px;
+      padding: 0.5rem 1.25rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      z-index: 10;
+      margin-bottom: 2rem;
+    }
+
+    .live-dot {
+      width: 8px;
+      height: 8px;
+      background: #10b981;
+      border-radius: 50%;
+      box-shadow: 0 0 10px #10b981;
+      animation: pulse-green 2s infinite;
+    }
+
+    .live-pill span.live-label {
+      font-size: 8px;
+      font-weight: 700;
+      color: #10b981;
+      letter-spacing: 1.5px;
+    }
+
+    .live-pill span.status-txt {
+      font-size: 11px;
+      color: #ffffff;
+      font-weight: 400;
+    }
+
+    @keyframes pulse-green {
+      0% { transform: scale(0.9); opacity: 0.6; }
+      50% { transform: scale(1.1); opacity: 1; }
+      100% { transform: scale(0.9); opacity: 0.6; }
+    }
+
+    .headline {
+      font-family: var(--font-serif);
+      font-style: italic;
+      font-size: clamp(2.5rem, 7vw, 5.5rem);
+      line-height: 1.1;
+      max-width: 1000px;
+      margin-bottom: 2rem;
+      font-weight: 400;
+    }
+
+    .headline span {
+      color: var(--gold-base);
+    }
+
+    .cta-group {
+      display: flex;
+      gap: 1.5rem;
+      margin-bottom: 5rem;
+    }
+
+    .btn-primary {
+      background: #ffffff;
+      color: #0a0a0a;
+      border: 1px solid #ffffff;
+      padding: 1rem 2.5rem;
+      border-radius: 50px;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      cursor: pointer;
+      transition: var(--transition-reveal);
+    }
+
+    .btn-primary:hover {
+      background: var(--gold-hover);
+      border-color: var(--gold-hover);
+      transform: translateY(-2px);
+    }
+
+    .btn-secondary {
+      background: transparent;
+      color: #ffffff;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      padding: 1rem 2.5rem;
+      border-radius: 50px;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      cursor: pointer;
+      transition: var(--transition-reveal);
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--gold-base);
+      color: var(--gold-light);
+      transform: translateY(-2px);
+    }
+
+    /* Dynamic SVG Connections Canvas */
+    .hero-interactive-area {
+      position: relative;
+      width: 100%;
+      max-width: 1100px;
+      height: 550px;
+      margin-top: 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #connectionSvg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    /* Central Node Card */
+    .center-node {
+      width: clamp(280px, 42vw, 490px);
+      aspect-ratio: 16/9;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 28px;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6);
+      z-index: 5;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: var(--transition-smooth);
+    }
+
+    .center-node:hover {
+      border-color: rgba(167, 139, 113, 0.4);
+    }
+
+    .center-node-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0.75;
+      filter: sepia(30%) contrast(1.1);
+    }
+
+    /* Floating Satellite Cards */
+    .satellite-card {
+      position: absolute;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      padding: 0.5rem;
+      z-index: 10;
+      transition: var(--transition-reveal);
+      cursor: pointer;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+    }
+
+    .satellite-card img {
+      width: 100%;
+      border-radius: 12px;
+      display: block;
+      filter: grayscale(100%);
+      transition: filter 0.7s ease;
+    }
+
+    .satellite-card:hover {
+      transform: scale(1.05);
+      border-color: var(--gold-base);
+      box-shadow: 0 0 60px rgba(167, 139, 113, 0.3);
+    }
+
+    .satellite-card:hover img {
+      filter: grayscale(0%) sepia(20%);
+    }
+
+    /* Positions & Floating Animations */
+    .sat-1 {
+      width: clamp(120px, 16vw, 190px);
+      top: 6%;
+      left: 2%;
+      animation: float1 7s ease-in-out infinite alternate;
+    }
+
+    .sat-2 {
+      width: clamp(110px, 14vw, 160px);
+      bottom: 6%;
+      left: 5%;
+      animation: float2 8s ease-in-out infinite alternate;
+    }
+
+    .sat-3 {
+      width: clamp(130px, 18vw, 210px);
+      top: 4%;
+      right: 2%;
+      animation: float2 6s ease-in-out infinite alternate;
+    }
+
+    .sat-4 {
+      width: clamp(120px, 16vw, 180px);
+      bottom: 8%;
+      right: 4%;
+      animation: float1 9s ease-in-out infinite alternate;
+    }
+
+    @keyframes float1 {
+      0% { transform: translateY(0px) rotate(0deg); }
+      100% { transform: translateY(-15px) rotate(1.5deg); }
+    }
+
+    @keyframes float2 {
+      0% { transform: translateY(0px) rotate(0deg); }
+      100% { transform: translateY(15px) rotate(-1.5deg); }
+    }
+
+    /* Neural Lines SVG Classes */
+    .node-line {
+      stroke: var(--gold-base);
+      stroke: url(#goldGradient);
+      stroke-width: 2.2;
+      animation: pulsing-branch 2.5s ease-in-out infinite;
+      opacity: 0.5;
+    }
+
+    .node-line-flow {
+      stroke: var(--gold-light);
+      stroke: url(#goldGradient);
+      stroke-width: 1.5;
+      stroke-dasharray: 6 18;
+      animation: dash-flow 3s linear infinite;
+    }
+
+    @keyframes pulsing-branch {
+      0%, 100% { opacity: 0.3; }
+      50% { opacity: 0.65; }
+    }
+
+    @keyframes dash-flow {
+      to { stroke-dashoffset: -40; }
+    }
+
+    /* Specialization Grid (4 columns) */
+    .section-title {
+      font-family: var(--font-serif);
+      font-style: italic;
+      font-size: 2.8rem;
+      text-align: center;
+      margin-bottom: 4rem;
+      font-weight: 400;
+    }
+
+    .section-title span {
+      color: var(--gold-base);
+    }
+
+    .features-grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 2rem;
+    }
+
+    .feature-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 24px;
+      padding: 2.5rem 2rem;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      transition: var(--transition-reveal);
+      flex: 1 1 320px;
+      max-width: 440px;
+    }
+
+    .feature-card:hover {
+      border-color: var(--gold-base);
+      transform: translateY(-5px);
+    }
+
+    .feature-icon-container {
+      width: 48px;
+      height: 48px;
+      background: rgba(167, 139, 113, 0.1);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1.5rem;
+      transition: var(--transition-smooth);
+    }
+
+    .feature-icon-container svg {
+      width: 24px;
+      height: 24px;
+      fill: var(--gold-base);
+      transition: var(--transition-smooth);
+    }
+
+    .feature-card:hover .feature-icon-container {
+      background: rgba(167, 139, 113, 0.2);
+    }
+
+    .feature-card:hover .feature-icon-container svg {
+      transform: scale(1.1);
+      fill: var(--gold-light);
+    }
+
+    .feature-title {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      color: rgba(255, 255, 255, 0.85);
+      transition: var(--transition-smooth);
+    }
+
+    .feature-desc {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.55);
+      font-weight: 300;
+      transition: var(--transition-smooth);
+    }
+
+    @media (hover: hover) {
+      .feature-card:hover .feature-title {
+        color: #ffffff;
+      }
+      .feature-card:hover .feature-desc {
+        color: rgba(255, 255, 255, 0.85);
+      }
+    }
+
+    /* Selected Works Section */
+    .pricing-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* Works Category Switcher */
+    .billing-toggle-container {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 4rem;
+    }
+
+    .toggle-label {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: rgba(255, 255, 255, 0.6);
+      transition: var(--transition-smooth);
+      cursor: pointer;
+    }
+
+    .toggle-label.active {
+      color: #ffffff;
+      font-weight: 700;
+    }
+
+    .toggle-switch {
+      width: 55px;
+      height: 30px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 30px;
+      position: relative;
+      cursor: pointer;
+      transition: var(--transition-smooth);
+    }
+
+    .toggle-knob {
+      width: 22px;
+      height: 22px;
+      background: #ffffff;
+      border-radius: 50%;
+      position: absolute;
+      top: 3px;
+      left: 4px;
+      transition: var(--transition-smooth);
+    }
+
+    .toggle-switch.annual .toggle-knob {
+      left: 27px;
+    }
+
+    .pricing-grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 2.5rem;
+      width: 100%;
+      max-width: 1100px;
+    }
+
+    .pricing-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 28px;
+      padding: 3rem 2.5rem;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      transition: var(--transition-reveal);
+      flex: 1 1 320px;
+      max-width: 360px;
+    }
+
+    .pricing-card.popular {
+      border: 1px solid rgba(167, 139, 113, 0.4);
+      box-shadow: 0 20px 50px rgba(167, 139, 113, 0.08);
+    }
+
+    .popular-badge {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: var(--gold-base);
+      color: #0a0a0a;
+      padding: 0.4rem 1.25rem;
+      border-radius: 50px;
+      font-size: 9px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+
+    .plan-name {
+      font-family: var(--font-serif);
+      font-style: italic;
+      font-size: 1.8rem;
+      margin-bottom: 0.5rem;
+      color: rgba(255, 255, 255, 0.85);
+      transition: var(--transition-smooth);
+    }
+
+    .plan-desc {
+      color: rgba(255, 255, 255, 0.55);
+      font-size: 13px;
+      margin-bottom: 2rem;
+      transition: var(--transition-smooth);
+    }
+
+    .plan-price {
+      display: flex;
+      align-items: baseline;
+      gap: 0.25rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .price-num {
+      font-size: 44px;
+      font-weight: 700;
+      letter-spacing: -1px;
+      color: var(--gold-light);
+    }
+
+    .price-period {
+      color: #9ca3af;
+      font-size: 14px;
+    }
+
+    .plan-features {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      margin-bottom: 3rem;
+    }
+
+    .plan-features li {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.7);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      transition: var(--transition-smooth);
+    }
+
+    @media (hover: hover) {
+      .pricing-card:hover .plan-name {
+        color: #ffffff;
+      }
+      .pricing-card:hover .plan-desc {
+        color: rgba(255, 255, 255, 0.85);
+      }
+      .pricing-card:hover .plan-features li {
+        color: rgba(255, 255, 255, 0.95);
+      }
+    }
+
+    .plan-features svg {
+      width: 16px;
+      height: 16px;
+      fill: var(--gold-base);
+    }
+
+    .btn-pricing {
+      margin-top: auto;
+      background: transparent;
+      color: #ffffff;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      padding: 1rem;
+      border-radius: 50px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      cursor: pointer;
+      transition: var(--transition-smooth);
+      text-align: center;
+      text-decoration: none;
+    }
+
+    .pricing-card.popular .btn-pricing {
+      background: #ffffff;
+      color: #0a0a0a;
+      border-color: #ffffff;
+    }
+
+    .btn-pricing:hover {
+      background: var(--gold-base);
+      color: #0a0a0a;
+      border-color: var(--gold-base);
+    }
+
+    .team-grid {
+      display: flex;
+      justify-content: center;
+      gap: 3rem;
+      width: 100%;
+    }
+
+    .team-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 28px;
+      overflow: hidden;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      transition: var(--transition-reveal);
+      max-width: 440px;
+      width: 100%;
+    }
+
+    .team-card:hover {
+      border-color: var(--gold-base);
+    }
+
+    .team-img-wrapper {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 4/5;
+      overflow: hidden;
+    }
+
+    .team-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      filter: grayscale(100%);
+      transition: var(--transition-smooth);
+    }
+
+    .team-card:hover .team-img {
+      filter: grayscale(0%);
+    }
+
+    .team-info {
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .team-name {
+      font-family: var(--font-serif);
+      font-size: 1.8rem;
+      font-style: italic;
+    }
+
+    .team-role {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      color: var(--gold-base);
+      font-weight: 600;
+    }
+
+    /* Footer */
+    .footer {
+      background: rgba(8, 8, 8, 0.95);
+      border-top: 1px solid var(--card-border);
+      padding: 6rem 3rem 3rem 3rem;
+      margin-top: 4rem;
+    }
+
+    .footer-grid {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1.8fr 0.8fr 1fr;
+      gap: 4rem;
+      margin-bottom: 6rem;
+    }
+
+    .footer-col {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .footer-logo {
+      font-family: var(--font-serif);
+      font-size: 1.8rem;
+      font-style: italic;
+      font-weight: 700;
+      color: #ffffff;
+      text-decoration: none;
+      letter-spacing: 1px;
+    }
+
+    .footer-desc {
+      font-size: 13px;
+      color: #9ca3af;
+      line-height: 1.7;
+    }
+
+    .social-links {
+      display: flex;
+      gap: 1rem;
+    }
+
+    .social-icon-btn {
+      width: 38px;
+      height: 38px;
+      border: 1px solid rgba(255,255,255, 0.15);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #ffffff;
+      text-decoration: none;
+      transition: var(--transition-smooth);
+    }
+
+    .social-icon-btn:hover {
+      border-color: var(--gold-base);
+      color: var(--gold-light);
+      background: rgba(167, 139, 113, 0.1);
+    }
+
+    .footer-heading {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--gold-light);
+      font-weight: 700;
+    }
+
+    .footer-links {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .footer-links a {
+      font-size: 13px;
+      color: #9ca3af;
+      text-decoration: none;
+      transition: var(--transition-smooth);
+    }
+
+    .footer-links a:hover {
+      color: #ffffff;
+    }
+
+    /* Newsletter Input */
+    .newsletter-form {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .digest-input-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .digest-input {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 50px;
+      padding: 0.85rem 3.5rem 0.85rem 1.5rem;
+      color: #ffffff;
+      outline: none;
+      font-size: 13px;
+      transition: var(--transition-smooth);
+    }
+
+    .digest-input:focus {
+      border-color: var(--gold-base);
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .digest-submit-btn {
+      position: absolute;
+      right: 6px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 36px;
+      height: 36px;
+      background: #ffffff;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: var(--transition-smooth);
+    }
+
+    .digest-submit-btn svg {
+      width: 16px;
+      height: 16px;
+      fill: #0a0a0a;
+      transition: var(--transition-smooth);
+    }
+
+    .digest-submit-btn:hover {
+      background: var(--gold-base);
+    }
+
+    .digest-submit-btn:hover svg {
+      fill: #ffffff;
+    }
+
+    .footer-bottom {
+      max-width: 1400px;
+      margin: 0 auto;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      padding-top: 2.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      color: #9ca3af;
+    }
+
+    /* Config Panel Trigger Badge */
+    .controls-indicator {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      background: rgba(10, 10, 10, 0.85);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 0.75rem 1.25rem;
+      font-size: 0.8rem;
+      z-index: 1000;
+      cursor: pointer;
+      backdrop-filter: blur(10px);
+      transition: var(--transition-smooth);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: #ffffff;
+    }
+
+    .controls-indicator:hover {
+      border-color: var(--gold-base);
+    }
+
+    /* Modal for Settings */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(10, 10, 10, 0.85);
+      backdrop-filter: blur(8px);
+      z-index: 2000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .modal {
+      background: #111827;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      padding: 2rem;
+      max-width: 500px;
+      width: 90%;
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+
+    .close-modal {
+      background: none;
+      border: none;
+      color: #9ca3af;
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+
+    .modal-body {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .form-group label {
+      font-size: 0.85rem;
+      color: #9ca3af;
+    }
+
+    .custom-file-input {
+      background: #1f2937;
+      border: 1px solid #374151;
+      border-radius: 8px;
+      padding: 0.5rem;
+      color: #ffffff;
+      cursor: pointer;
+    }
+
+    .status-text {
+      font-size: 0.8rem;
+      color: #34d399;
+      margin-top: -0.5rem;
+    }
+
+    /* Responsive Media Queries */
+    @media (max-width: 1024px) {
+      .content-wrapper {
+        padding: 7rem 2rem 3rem 2rem;
+        gap: 5rem;
+      }
+      .features-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .footer-grid {
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 3rem;
+      }
+      .footer-col:last-child {
+        grid-column: span 1;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .navbar {
+        padding: 1rem 1.5rem;
+      }
+      .logo {
+        font-size: clamp(1.1rem, 5.2vw, 1.45rem);
+        letter-spacing: 1px;
+      }
+      .nav-links {
+        gap: 1.5rem;
+      }
+      .nav-links li:first-child {
+        display: none; /* Hide 'Интересы' on mobile to save space */
+      }
+      .hero-section {
+        justify-content: flex-start;
+        min-height: auto;
+        padding-top: 2rem;
+      }
+      .hero-interactive-area {
+        height: auto;
+        flex-direction: column;
+        gap: 2.5rem;
+        margin-top: 2rem;
+      }
+      #connectionSvg {
+        display: none; /* Hide lines on mobile */
+      }
+      .center-node {
+        width: 100%;
+        max-width: 440px;
+      }
+      .satellite-card {
+        position: static;
+        width: 100%;
+        max-width: 320px;
+        animation: none !important;
+        transform: none !important;
+      }
+      .pricing-grid {
+        flex-direction: column;
+        align-items: center;
+        gap: 2rem;
+        max-width: 440px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .content-wrapper {
+        padding: 6rem 1rem 2rem 1rem;
+        gap: 4rem;
+      }
+      .features-grid {
+        flex-direction: column;
+        align-items: center;
+      }
+      .team-grid {
+        flex-direction: column;
+        align-items: center;
+        gap: 2.5rem;
+      }
+      .footer-grid {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+      }
+      .footer-col:last-child {
+        grid-column: span 1;
+      }
+      .footer-bottom {
+        flex-direction: column;
+        gap: 1.25rem;
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Background Layers -->
+  <div class="bg-container">
+    <div class="bg-layer bg-bw"></div>
+    <canvas id="bgCanvas"></canvas>
+    <div class="dot-grid"></div>
+    <div class="bg-overlay"></div>
+    <div class="central-glow"></div>
+  </div>
+
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="#" class="logo">ANARCHYTRAP<span>.</span></a>
+      <ul class="nav-links">
+        <li><a href="#specialization">Интересы</a></li>
+        <li><a href="#works">Проекты</a></li>
+        <li><a href="#about">Обо мне</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <div class="content-wrapper">
+
+    <!-- Hero Section -->
+    <header class="hero-section">
+
+
+      <h1 class="headline">Креативные концепты, <span>Roblox-скрипты</span> и веб-эксперименты.</h1>
+      
+      <div class="cta-group">
+        <button class="btn-primary" onclick="document.getElementById('works').scrollIntoView({behavior: 'smooth'})">Смотреть работы</button>
+        <button class="btn-secondary" onclick="document.getElementById('about').scrollIntoView({behavior: 'smooth'})">Обо мне</button>
+      </div>
+
+      <!-- Hero Interactive Canvas (Node Central & Satellites) -->
+      <div class="hero-interactive-area" id="heroInteractiveArea">
+        <svg id="connectionSvg">
+          <defs>
+            <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="100%" gradientUnits="userSpaceOnUse">
+              <stop offset="10%" stop-color="#c9b8a0" />
+              <stop offset="90%" stop-color="#a78b71" />
+            </linearGradient>
+          </defs>
+        </svg>
+
+        <!-- Central Node Card (16:9 aspect) -->
+        <div class="center-node">
+          <img src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=600&q=80" alt="Featured Work Cover" class="center-node-img">
+        </div>
+
+        <!-- Floating Satellite Cards (Creative Disciplines Previews) -->
+        <div class="satellite-card sat-1">
+          <img src="https://images.unsplash.com/photo-1614741118887-7a4ee193a5fa?auto=format&fit=crop&w=300&q=80" alt="Code & WebGL">
+        </div>
+        <div class="satellite-card sat-2">
+          <img src="https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?auto=format&fit=crop&w=300&q=80" alt="3D & Generative Art">
+        </div>
+        <div class="satellite-card sat-3">
+          <img src="https://images.unsplash.com/photo-1633356122544-f134324a6cee?auto=format&fit=crop&w=300&q=80" alt="Interactive Interfaces">
+        </div>
+        <div class="satellite-card sat-4">
+          <img src="https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?auto=format&fit=crop&w=300&q=80" alt="Aesthetic Typography">
+        </div>
+
+      </div>
+    </header>
+
+    <!-- Specialization Section -->
+    <section class="features-section" id="specialization">
+      <h2 class="section-title">Интересы и <span>увлечения</span></h2>
+      
+      <div class="features-grid">
+        <!-- Spec 1 -->
+        <div class="feature-card">
+          <div class="feature-icon-container">
+            <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+          </div>
+          <h3 class="feature-title">Roblox & Lua</h3>
+          <p class="feature-desc">Изучение игровой логики, написание скриптов и создание модификаций.</p>
+        </div>
+
+        <!-- Spec 2 -->
+        <div class="feature-card">
+          <div class="feature-icon-container">
+            <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
+          </div>
+          <h3 class="feature-title">Python</h3>
+          <p class="feature-desc">Автоматизация повседневных задач, написание скриптов и работа с API.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Selected Works Section -->
+    <section class="pricing-section" id="works">
+      <h2 class="section-title">Избранные <span>проекты</span></h2>
+
+      <!-- Works Filter Switcher -->
+      <div class="billing-toggle-container">
+        <span class="toggle-label active" id="labelMonthly">Креатив</span>
+        <div class="toggle-switch" id="billingToggle">
+          <div class="toggle-knob"></div>
+        </div>
+        <span class="toggle-label" id="labelAnnual">Скрипты / Код</span>
+      </div>
+
+      <div class="pricing-grid">
+        <!-- Project 1 -->
+        <div class="pricing-card" id="projectCard1">
+          <span class="popular-badge" id="projectBadge1">Branding</span>
+          <h3 class="plan-name" id="projectName1">Aether Visuals</h3>
+          <p class="plan-desc" id="projectDesc1">Айдентика и визуальный код для нейросетевой платформы генеративного искусства.</p>
+          <div class="plan-price">
+            <span class="price-num" id="projectYear1">2026</span>
+            <span class="price-period">/ Concept</span>
+          </div>
+          <ul class="plan-features" id="projectFeatures1">
+            <li><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg> Золотая геометрия логотипа</li>
+            <li><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg> Премиальные 3D-макеты</li>
+            <li><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg> Brandbook & Руководство стиля</li>
+          </ul>
+          <a href="#" class="btn-pricing">Кейс-стади</a>
+        </div>
+
+        <!-- Project 2 (Highlighted) -->
+        <div class="pricing-card popular" id="projectCard2">
+          <span class="popular-badge" id="projectBadge2">Featured</span>
+          <h3 class="plan-name" id="projectName2">Chronicles Editorial</h3>
+          <p class="plan-desc" id="projectDesc2">Дизайн цифрового интерактивного журнала о философии и искусстве будущего.</p>
+          <div class="plan-price">
+            <span class="price-num" id="projectYear2">2026</span>
+            <span class="price-period">/ Live</span>
+          </div>
+          <ul class="plan-features" id="projectFeatures2">
+            <li><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg> Сетка в духе швейцарского стиля</li>
+            <li><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg> Интеграция жидкого фона</li>
+            <li><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg> Glassmorphism-слои</li>
+            <li><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg> Текстовые микро-анимации</li>
+          </ul>
+          <a href="#" class="btn-pricing">Запустить сайт</a>
+        </div>
+
+        <!-- Project 3 -->
+        <div class="pricing-card" id="projectCard3">
+          <span class="popular-badge" id="projectBadge3">Mobile</span>
+          <h3 class="plan-name" id="projectName3">Helios Interface</h3>
+          <p class="plan-desc" id="projectDesc3">Концепт пользовательского интерфейса премиум-приложения для арт-банкинга.</p>
+          <div class="plan-price">
+            <span class="price-num" id="projectYear3">2025</span>
+            <span class="price-period">/ UI Kit</span>
+          </div>
+          <ul class="plan-features" id="projectFeatures3">
+            <li><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg> Тёмная тема с золотой палитрой</li>
+            <li><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg> Умная адаптация контрастности</li>
+            <li><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg> 120+ готовых компонентов</li>
+          </ul>
+          <a href="#" class="btn-pricing">Кейс-стади</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- About & Workspace Section -->
+    <section class="team-section" id="about">
+      <h2 class="section-title">Обо <span>мне</span></h2>
+      <div class="team-grid">
+        <!-- Me -->
+        <div class="team-card">
+          <div class="team-img-wrapper">
+            <img src="https://i.postimg.cc/GpwQGNf0/morning.jpg" alt="Anarchytrap" class="team-img">
+          </div>
+          <div class="team-info">
+            <h3 class="team-name">Anarchytrap</h3>
+            <span class="team-role">vibecode = love</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-grid">
+      <!-- Col 1: Logo & About -->
+      <div class="footer-col">
+        <a href="#" class="footer-logo">ANARCHYTRAP<span>.</span></a>
+        <p class="footer-desc">Креативные концепты, Roblox-скрипты и веб-эксперименты.</p>
+        <div class="social-links">
+          <a href="https://github.com/smertnixxxx" target="_blank" class="social-icon-btn"><i class="fab fa-github"></i></a>
+          <a href="https://t.me/anarchytrap" target="_blank" class="social-icon-btn"><i class="fab fa-telegram"></i></a>
+          <a href="https://discord.com/users/1386221332349325454" target="_blank" class="social-icon-btn"><i class="fab fa-discord"></i></a>
+          <a href="https://www.tiktok.com/@undernight42?lang=ru-RU" target="_blank" class="social-icon-btn"><i class="fab fa-tiktok"></i></a>
+        </div>
+      </div>
+
+      <!-- Col 2: Navigation Links -->
+      <div class="footer-col">
+        <h4 class="footer-heading">Навигация</h4>
+        <ul class="footer-links">
+          <li><a href="#specialization">Интересы</a></li>
+          <li><a href="#works">Проекты</a></li>
+          <li><a href="#about">Обо мне</a></li>
+        </ul>
+      </div>
+
+      <!-- Col 3: Contacts -->
+      <div class="footer-col">
+        <h4 class="footer-heading">Контакты</h4>
+        <ul class="footer-links">
+          <li><a href="mailto:anarchytrap@gmail.com">anarchytrap@gmail.com</a></li>
+          <li><a href="https://t.me/anarchytrap" target="_blank">Telegram: @anarchytrap</a></li>
+          <li><a href="https://github.com/smertnixxxx" target="_blank">GitHub: smertnixxxx</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p>&copy; 2026 Anarchytrap Portfolio. All rights reserved.</p>
+      <p>Сделано с акцентом на качество и эстетику</p>
+    </div>
+  </footer>
+
+
+
+  <script>
+    // Variables & Contexts
+    const bgBw = document.querySelector('.bg-bw');
+    const canvas = document.getElementById('bgCanvas');
+    const ctx = canvas.getContext('2d');
+
+    let lensRadius = 160;
+
+    // Pointer Tracking
+    let mouse = { x: -1000, y: -1000 };
+    let cursor = { x: -1000, y: -1000 };
+    let trail = [];
+    let lastAdded = { x: -1000, y: -1000 };
+
+    let activeColorImage = null;
+
+    // Resize canvas to full viewport
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      drawConnections(); // Redraw dynamic connection curves as container positions shift
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    // Mouse Tracking
+    function updateMousePos(clientX, clientY) {
+      mouse.x = clientX;
+      mouse.y = clientY;
+    }
+
+    window.addEventListener('mousemove', (e) => {
+      updateMousePos(e.clientX, e.clientY);
+    });
+
+    window.addEventListener('touchmove', (e) => {
+      if (e.touches.length > 0) {
+        updateMousePos(e.touches[0].clientX, e.touches[0].clientY);
+      }
+    }, { passive: true });
+
+    window.addEventListener('touchstart', (e) => {
+      if (e.touches.length > 0) {
+        updateMousePos(e.touches[0].clientX, e.touches[0].clientY);
+      }
+    }, { passive: true });
+
+    // --- Premium Real-time Synthesizer Hover Sound (Web Audio API) ---
+    let audioCtx = null;
+    function playHoverSound() {
+      try {
+        if (!audioCtx) {
+          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (audioCtx.state === 'suspended') {
+          audioCtx.resume();
+        }
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        
+        osc.type = 'sine'; // Soft, high-end beep
+        osc.frequency.setValueAtTime(840, audioCtx.currentTime); // Pitch
+        osc.frequency.exponentialRampToValueAtTime(540, audioCtx.currentTime + 0.05); // Decay
+        
+        gain.gain.setValueAtTime(0.012, audioCtx.currentTime); // Low, non-disruptive volume
+        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.05); // Fade out
+        
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.05);
+      } catch (e) {}
+    }
+
+    // Attach sound to hoverable elements dynamically
+    function initHoverSounds() {
+      const targets = document.querySelectorAll('a, button, .satellite-card, .feature-card, .pricing-card, .team-card, .controls-indicator, .toggle-switch');
+      targets.forEach(el => {
+        el.removeEventListener('mouseenter', playHoverSound);
+        el.addEventListener('mouseenter', playHoverSound);
+      });
+    }
+
+    // Initialize sounds on load
+    initHoverSounds();
+
+
+
+    // Draw Background Color Image using centered cover math
+    function drawImageCover(ctx, img, w, h) {
+      if (!img || !img.complete) return;
+      const imgRatio = img.width / img.height;
+      const canvasRatio = w / h;
+      let sx, sy, sw, sh;
+
+      if (imgRatio > canvasRatio) {
+        sh = img.height;
+        sw = img.height * canvasRatio;
+        sx = (img.width - sw) / 2;
+        sy = 0;
+      } else {
+        sw = img.width;
+        sh = img.width / canvasRatio;
+        sx = 0;
+        sy = (img.height - sh) / 2;
+      }
+
+      ctx.drawImage(img, sx, sy, sw, sh, 0, 0, w, h);
+    }
+
+    // Animation Loop for fluid water trail
+    function animate() {
+      // Lerp cursor position
+      if (mouse.x !== -1000) {
+        if (cursor.x === -1000) {
+          cursor.x = mouse.x;
+          cursor.y = mouse.y;
+        } else {
+          cursor.x += (mouse.x - cursor.x) * 0.22; // Snappy 22% lerp
+          cursor.y += (mouse.y - cursor.y) * 0.22;
+        }
+
+        // Add points to trail if moving
+        const dist = Math.hypot(cursor.x - lastAdded.x, cursor.y - lastAdded.y);
+        if (dist > 8) {
+          trail.push({
+            x: cursor.x,
+            y: cursor.y,
+            radius: lensRadius,
+            alpha: 1.0
+          });
+          lastAdded.x = cursor.x;
+          lastAdded.y = cursor.y;
+        }
+      }
+
+      // Clear Canvas
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      if (activeColorImage && activeColorImage.complete) {
+        ctx.save();
+
+        // Draw trail points
+        trail.forEach((p, idx) => {
+          p.alpha -= 0.035; // Dissolve speed
+          p.radius -= 1.2;  // Shrink rate
+          
+          if (p.alpha <= 0 || p.radius <= 0) {
+            trail.splice(idx, 1);
+            return;
+          }
+
+          const grad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.radius);
+          grad.addColorStop(0, `rgba(255, 255, 255, ${p.alpha})`);
+          grad.addColorStop(0.3, `rgba(255, 255, 255, ${p.alpha * 0.7})`);
+          grad.addColorStop(1, 'rgba(255, 255, 255, 0)');
+
+          ctx.fillStyle = grad;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+          ctx.fill();
+        });
+
+        // Draw active cursor circle
+        if (cursor.x !== -1000) {
+          const mainGrad = ctx.createRadialGradient(cursor.x, cursor.y, 0, cursor.x, cursor.y, lensRadius);
+          mainGrad.addColorStop(0, 'rgba(255, 255, 255, 1.0)');
+          mainGrad.addColorStop(0.4, 'rgba(255, 255, 255, 0.8)');
+          mainGrad.addColorStop(1, 'rgba(255, 255, 255, 0)');
+
+          ctx.fillStyle = mainGrad;
+          ctx.beginPath();
+          ctx.arc(cursor.x, cursor.y, lensRadius, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        // Clip and Draw original color image
+        ctx.globalCompositeOperation = 'source-in';
+        drawImageCover(ctx, activeColorImage, canvas.width, canvas.height);
+        ctx.restore();
+      }
+
+      requestAnimationFrame(animate);
+    }
+    requestAnimationFrame(animate);
+
+    // Initial Loading / Fallback Setup
+    const localBwPath = "file:///D:/Users/danya/Desktop/bw.png";
+    const localColorPath = "file:///D:/Users/danya/Desktop/c.jpg";
+
+    const imgBw = new Image();
+    const imgColor = new Image();
+    let loadedCount = 0;
+
+    function applyBgImages(bwUrl, colorUrl, isFallback = false) {
+      bgBw.style.backgroundImage = `url('${bwUrl}')`;
+      
+      // Load color image for the Canvas rendering
+      imgColor.onload = () => {
+        activeColorImage = imgColor;
+      };
+      imgColor.src = colorUrl;
+
+      if (isFallback) {
+        bgBw.style.filter = 'grayscale(100%) brightness(0.22)';
+      } else {
+        bgBw.style.filter = 'brightness(0.35)';
+      }
+    }
+
+    const runFallback = () => {
+      // Luxury abstract wallpaper background
+      const goldAbstractUrl = "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1920&q=80";
+      applyBgImages(goldAbstractUrl, goldAbstractUrl, true);
+    };
+
+    imgBw.src = localBwPath;
+    imgColor.src = localColorPath;
+
+    imgBw.onload = () => {
+      loadedCount++;
+      if (loadedCount === 2) applyBgImages(localBwPath, localColorPath);
+    };
+    imgBw.onerror = runFallback;
+
+    imgColor.onload = () => {
+      loadedCount++;
+      if (loadedCount === 2) applyBgImages(localBwPath, localColorPath);
+    };
+    imgColor.onerror = runFallback;
+
+    // --- Dynamic SVG Connections Draw Logic ---
+    function drawConnections() {
+      const area = document.getElementById('heroInteractiveArea');
+      const svg = document.getElementById('connectionSvg');
+      const centerNode = document.querySelector('.center-node');
+      const satellites = document.querySelectorAll('.satellite-card');
+      
+      if (!svg || !centerNode || !area) return;
+      
+      if (window.innerWidth < 768) {
+        // Clear connection lines on mobile since layout becomes stacked
+        const paths = svg.querySelectorAll('path');
+        paths.forEach(p => p.remove());
+        return;
+      }
+      
+      // Clear previous paths
+      const paths = svg.querySelectorAll('path');
+      paths.forEach(p => p.remove());
+      
+      const areaRect = area.getBoundingClientRect();
+      const centerRect = centerNode.getBoundingClientRect();
+      
+      // Center Point of the Middle Node relative to interactive area
+      const cx = centerRect.left - areaRect.left + centerRect.width / 2;
+      const cy = centerRect.top - areaRect.top + centerRect.height / 2;
+      
+      satellites.forEach((sat, index) => {
+        const satRect = sat.getBoundingClientRect();
+        
+        // Target Point of the satellite relative to interactive area
+        const sx = satRect.left - areaRect.left + satRect.width / 2;
+        const sy = satRect.top - areaRect.top + satRect.height / 2;
+        
+        // Control point calculation for dynamic curve bends
+        const mx = (cx + sx) / 2;
+        const my = (cy + sy) / 2 - (index % 2 === 0 ? 50 : -50);
+        
+        const pathD = `M ${cx} ${cy} Q ${mx} ${my} ${sx} ${sy}`;
+        
+        // Pulsing branch connection line
+        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        path.setAttribute('d', pathD);
+        path.setAttribute('class', 'node-line');
+        path.setAttribute('fill', 'none');
+        path.setAttribute('stroke', 'url(#goldGradient)');
+        
+        // Secondary Dash Flow connection line
+        const dashPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        dashPath.setAttribute('d', pathD);
+        dashPath.setAttribute('class', 'node-line-flow');
+        dashPath.setAttribute('fill', 'none');
+        dashPath.setAttribute('stroke', 'url(#goldGradient)');
+        
+        svg.appendChild(path);
+        svg.appendChild(dashPath);
+      });
+    }
+
+    // Call connections draw on page load and trigger twice on load to ensure bounding rectangles stabilize
+    window.addEventListener('load', () => {
+      drawConnections();
+      setTimeout(drawConnections, 300);
+      setTimeout(drawConnections, 800);
+    });
+
+    // --- Dynamic Portfolio Content Switcher ---
+    const billingToggle = document.getElementById('billingToggle');
+    const labelMonthly = document.getElementById('labelMonthly');
+    const labelAnnual = document.getElementById('labelAnnual');
+    
+    // Project Cards content datasets
+    // Project Cards content datasets
+    const designProjects = [
+      {
+        badge: "Interface",
+        name: "mybio UI",
+        desc: "Дизайн персональной визитки в стиле симулятора iOS с Dynamic Island.",
+        year: "2026",
+        period: "/ Concept",
+        features: [
+          "Симуляция экрана iPhone",
+          "Минималистичный темный стиль",
+          "Виджеты приложений и плеера"
+        ],
+        btnLabel: "GitHub",
+        btnUrl: "https://github.com/smertnixxxx/mybio"
+      },
+      {
+        badge: "Media Art",
+        name: "TikTok Creative",
+        desc: "Короткие видео, тренды и музыкальное оформление в TikTok.",
+        year: "2026",
+        period: "/ Видео",
+        features: [
+          "Киберпанк эстетика",
+          "Музыкальные биты",
+          "Атмосферный визуал"
+        ],
+        btnLabel: "Смотреть в TikTok",
+        btnUrl: "https://www.tiktok.com/@undernight42?lang=ru-RU"
+      }
+    ];
+
+    const codeProjects = [
+      {
+        badge: "Lua / Python",
+        name: "roblox Scripting",
+        desc: "Скрипты и утилиты на Python и Lua для взаимодействия с Roblox.",
+        year: "2026",
+        period: "/ Script",
+        features: [
+          "Игровые модификации",
+          "Автоматизация действий",
+          "Lua-сценарии"
+        ],
+        btnLabel: "GitHub Репозиторий",
+        btnUrl: "https://github.com/smertnixxxx/roblox"
+      },
+      {
+        badge: "HTML / Page",
+        name: "Biobilder",
+        desc: "Простой конструктор био-ссылок и страниц-визиток.",
+        year: "2026",
+        period: "/ Web",
+        features: [
+          "Интерактивная структура",
+          "Легкий статический HTML",
+          "Кастомные стили"
+        ],
+        btnLabel: "GitHub Репозиторий",
+        btnUrl: "https://github.com/smertnixxxx/Biobilder"
+      },
+      {
+        badge: "Lua",
+        name: "phorma Core",
+        desc: "Экспериментальный скрипт на языке Lua.",
+        year: "2026",
+        period: "/ Lua",
+        features: [
+          "Чистый код на Lua",
+          "Консольные вычисления",
+          "Алгоритмические тесты"
+        ],
+        btnLabel: "GitHub Репозиторий",
+        btnUrl: "https://github.com/smertnixxxx/phorma"
+      }
+    ];
+
+    let currentCategory = "design";
+
+    function updateProjectCards(dataset) {
+      for (let i = 1; i <= 3; i++) {
+        const card = document.getElementById(`projectCard${i}`);
+        if (dataset[i - 1]) {
+          card.style.display = "flex";
+          const proj = dataset[i - 1];
+          document.getElementById(`projectBadge${i}`).textContent = proj.badge;
+          document.getElementById(`projectName${i}`).textContent = proj.name;
+          document.getElementById(`projectDesc${i}`).textContent = proj.desc;
+          document.getElementById(`projectYear${i}`).textContent = proj.year;
+          card.querySelector('.price-period').textContent = proj.period;
+          
+          const list = document.getElementById(`projectFeatures${i}`);
+          list.innerHTML = "";
+          proj.features.forEach(feat => {
+            const li = document.createElement('li');
+            li.innerHTML = `<svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg> ${feat}`;
+            list.appendChild(li);
+          });
+
+          const btn = card.querySelector('.btn-pricing');
+          btn.textContent = proj.btnLabel;
+          btn.href = proj.btnUrl || "#";
+          btn.target = proj.btnUrl ? "_blank" : "_self";
+        } else {
+          card.style.display = "none";
+        }
+      }
+    }
+
+    // Call updateProjectCards immediately to populate on page load
+    updateProjectCards(designProjects);
+
+    function toggleCategory() {
+      if (currentCategory === "design") {
+        currentCategory = "code";
+        billingToggle.classList.add('annual');
+        labelMonthly.classList.remove('active');
+        labelAnnual.classList.add('active');
+        updateProjectCards(codeProjects);
+      } else {
+        currentCategory = "design";
+        billingToggle.classList.remove('annual');
+        labelMonthly.classList.add('active');
+        labelAnnual.classList.remove('active');
+        updateProjectCards(designProjects);
+      }
+    }
+
+    billingToggle.addEventListener('click', toggleCategory);
+    labelMonthly.addEventListener('click', () => { if (currentCategory === "code") toggleCategory(); });
+    labelAnnual.addEventListener('click', () => { if (currentCategory === "design") toggleCategory(); });
+  </script>
+</body>
+</html>
